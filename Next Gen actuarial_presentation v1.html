@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Next-Generation Actuarial Experience Studies</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a0f1e;
+    --deep: #0d1526;
+    --card: #111827;
+    --accent: #00d4aa;
+    --accent2: #4f8cff;
+    --accent3: #f5a623;
+    --text: #e8edf5;
+    --muted: #8892a4;
+    --border: rgba(255,255,255,0.07);
+    --glass: rgba(255,255,255,0.04);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--navy);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    overflow: hidden;
+  }
+
+  /* ── SLIDE WRAPPER ── */
+  .deck { width: 100%; height: 100vh; position: relative; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: none;
+    padding: 48px 64px;
+    overflow: hidden;
+  }
+  .slide.active { display: flex; flex-direction: column; }
+
+  /* ── BACKGROUND GRID ── */
+  .slide::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+
+  /* animated accent orb */
+  .slide::after {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,212,170,0.06) 0%, transparent 70%);
+    top: -150px; right: -150px;
+    pointer-events: none;
+    animation: pulse 8s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.7; }
+  }
+
+  /* ── HEADER ── */
+  .slide-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 36px;
+    position: relative; z-index: 1;
+  }
+
+  .slide-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .slide-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 3vw, 38px);
+    font-weight: 900;
+    line-height: 1.1;
+    color: var(--text);
+    max-width: 700px;
+  }
+
+  .slide-title span { color: var(--accent); }
+
+  .logo-mark {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-align: right;
+    line-height: 1.8;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    width: 100%; height: 1px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
+    margin-bottom: 32px;
+    position: relative; z-index: 1;
+  }
+
+  /* ── CONTENT GRID ── */
+  .content-grid {
+    display: grid;
+    gap: 20px;
+    flex: 1;
+    position: relative; z-index: 1;
+  }
+
+  .two-col { grid-template-columns: 1fr 1fr; }
+  .three-col { grid-template-columns: 1fr 1fr 1fr; }
+  .one-col { grid-template-columns: 1fr; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    backdrop-filter: blur(4px);
+    transition: border-color 0.3s;
+  }
+  .card:hover { border-color: rgba(0,212,170,0.2); }
+
+  .card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-label::before {
+    content: '';
+    display: inline-block;
+    width: 20px; height: 2px;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+  .card-label.blue { color: var(--accent2); }
+  .card-label.blue::before { background: var(--accent2); }
+  .card-label.amber { color: var(--accent3); }
+  .card-label.amber::before { background: var(--accent3); }
+
+  /* ── BULLET LIST ── */
+  ul.items {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  ul.items li {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+    padding-left: 16px;
+    position: relative;
+  }
+  ul.items li::before {
+    content: '›';
+    position: absolute; left: 0;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  ul.items li.sub {
+    margin-left: 18px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  ul.items li.sub::before { color: var(--muted); content: '–'; }
+
+  /* ── TAG CHIPS ── */
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid;
+    letter-spacing: 1px;
+  }
+  .tag.green { color: var(--accent); border-color: rgba(0,212,170,0.3); background: rgba(0,212,170,0.06); }
+  .tag.blue  { color: var(--accent2); border-color: rgba(79,140,255,0.3); background: rgba(79,140,255,0.06); }
+  .tag.amber { color: var(--accent3); border-color: rgba(245,166,35,0.3); background: rgba(245,166,35,0.06); }
+  .tag.red   { color: #ff6b6b; border-color: rgba(255,107,107,0.3); background: rgba(255,107,107,0.06); }
+
+  /* ── STAT BOXES ── */
+  .stat-row { display: flex; gap: 14px; margin-top: 14px; }
+  .stat-box {
+    flex: 1;
+    background: rgba(0,212,170,0.06);
+    border: 1px solid rgba(0,212,170,0.15);
+    border-radius: 8px;
+    padding: 12px 14px;
+    text-align: center;
+  }
+  .stat-box .num {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .stat-box .lbl {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── ROADMAP PHASES ── */
+  .phases { display: flex; gap: 16px; flex: 1; }
+  .phase {
+    flex: 1;
+    border-radius: 12px;
+    padding: 22px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .phase::before {
+    content: attr(data-num);
+    position: absolute;
+    top: -10px; right: 10px;
+    font-family: 'Playfair Display', serif;
+    font-size: 80px;
+    font-weight: 900;
+    opacity: 0.04;
+    color: #fff;
+    line-height: 1;
+  }
+  .phase.p1 { background: rgba(0,212,170,0.04); border-color: rgba(0,212,170,0.15); }
+  .phase.p2 { background: rgba(79,140,255,0.04); border-color: rgba(79,140,255,0.15); }
+  .phase.p3 { background: rgba(245,166,35,0.04); border-color: rgba(245,166,35,0.15); }
+
+  .phase-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .phase.p1 .phase-title { color: var(--accent); }
+  .phase.p2 .phase-title { color: var(--accent2); }
+  .phase.p3 .phase-title { color: var(--accent3); }
+
+  .phase-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: var(--text);
+  }
+
+  /* ── ARROW CONNECTOR ── */
+  .arrow-row {
+    display: flex; align-items: center; gap: 0;
+    margin-bottom: 20px; position: relative; z-index: 1;
+  }
+  .arrow-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    flex: 1;
+  }
+  .arrow-box strong { display: block; color: var(--text); font-size: 13px; margin-bottom: 2px; }
+  .arrow-sep {
+    font-size: 22px; color: var(--accent);
+    padding: 0 8px; flex-shrink: 0;
+  }
+
+  /* ── FORMULA BOX ── */
+  .formula {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent2);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--accent2);
+    margin-top: 12px;
+    line-height: 1.7;
+  }
+
+  /* ── NAV ── */
+  .nav {
+    position: fixed;
+    bottom: 28px; left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(10,15,30,0.9);
+    border: 1px solid var(--border);
+    border-radius: 40px;
+    padding: 10px 20px;
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .nav-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .nav-dots { display: flex; gap: 6px; }
+  .nav-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+  }
+  .nav-dot.active { background: var(--accent); width: 20px; border-radius: 3px; }
+
+  .nav-counter {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 40px;
+    text-align: center;
+  }
+
+  /* ── PRINT ── */
+  @media print {
+    html, body { overflow: visible; height: auto; }
+    .deck { height: auto; position: static; }
+    .slide {
+      display: flex !important;
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      page-break-after: always;
+      break-after: page;
+      padding: 48px 64px;
+    }
+    .nav, .progress-bar { display: none !important; }
+  }
+
+  /* ── ANIMATIONS ── */
+  .slide.active .card,
+  .slide.active .phase,
+  .slide.active .arrow-box {
+    animation: fadeUp 0.4s ease both;
+  }
+  .slide.active .card:nth-child(2), .slide.active .phase:nth-child(2) { animation-delay: 0.08s; }
+  .slide.active .card:nth-child(3), .slide.active .phase:nth-child(3) { animation-delay: 0.16s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── TITLE SLIDE SPECIAL ── */
+  .slide-0 {
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .slide-0::after {
+    width: 900px; height: 900px;
+    top: -300px; right: -300px;
+    background: radial-gradient(circle, rgba(79,140,255,0.08) 0%, transparent 65%);
+  }
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    animation: fadeUp 0.5s ease both;
+  }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 5vw, 62px);
+    font-weight: 900;
+    line-height: 1.05;
+    max-width: 780px;
+    margin-bottom: 28px;
+    animation: fadeUp 0.5s 0.1s ease both;
+  }
+  .hero-title em { color: var(--accent); font-style: normal; }
+  .hero-sub {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 540px;
+    line-height: 1.7;
+    animation: fadeUp 0.5s 0.2s ease both;
+    margin-bottom: 40px;
+  }
+  .hero-meta {
+    display: flex; gap: 32px;
+    animation: fadeUp 0.5s 0.3s ease both;
+  }
+  .hero-meta-item { border-left: 2px solid var(--accent); padding-left: 14px; }
+  .hero-meta-item .m-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; font-weight: 700;
+    color: var(--text);
+  }
+  .hero-meta-item .m-key {
+    font-size: 11px; color: var(--muted);
+    margin-top: 2px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+  }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.4s ease;
+    z-index: 200;
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+
+<div class="deck" id="deck">
+
+  <!-- ─── TITLE SLIDE ─── -->
+  <div class="slide slide-0 active" id="slide-0">
+    <div class="slide-header" style="z-index:1;position:relative;">
+      <div></div>
+      <div class="logo-mark">ACTUARIAL SCIENCE<br>RESEARCH BRIEF</div>
+    </div>
+    <div style="position:relative;z-index:1;flex:1;display:flex;flex-direction:column;justify-content:center;">
+      <div class="hero-label">Next-Generation Experience Studies</div>
+      <div class="hero-title">AI-Driven Mortality &amp;<br><em>Policyholder Behaviour</em><br>Analysis</div>
+      <div class="hero-sub">A strategic framework for modernizing life insurance actuarial experience studies — integrating machine learning, alternative risk drivers, IFRS 17, and CARLI/LICAT capital requirements.</div>
+      <div class="hero-meta">
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 1 ─── -->
+  <div class="slide" id="slide-1">
+    <div class="slide-header">
+      <div>
+        <span class="slide-num">01 / 07</span>
+        <div class="slide-title">Current Approach &amp; <span>Key Issues</span></div>
+      </div>
+      <div class="logo-mark">EXPERIENCE STUDIES<br>BASELINE</div>
+    </div>
+    <div class="divider"></div>
+    <div class="content-grid two-col" style="flex:1;">
+      <div class="card">
+        <div class="card-label">Current Actuarial Approach</div>
+        <ul class="items">
+          <li>Heavy reliance on traditional demographic factors — age, gender, smoker status</li>
+          <li>Experience studies based on coarse segmentation and small variable sets</li>
+          <li>Manual, spreadsheet-driven workflows for assumption setting &amp; validation</li>
+          <li>Limited linkage between experience analysis and downstream pricing / reserving models</li>
+        </ul>
+        <div class="tags" style="margin-top:16px;">
+          <span class="tag green">Age / Gender</span>
+          <span class="tag green">Smoker Status</span>
+          <span class="tag green">Face Amount</span>
+          <span class="tag amber">Annual Refresh</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label amber">Key Issues</div>
+        <ul class="items">
+          <li>Material unexplained variance in mortality and morbidity outcomes</li>
+          <li>Slow refresh cycles → assumptions lag emerging experience</li>
+          <li>Increasing difficulty defending assumptions under IFRS 17 transparency and model risk scrutiny</li>
+          <li>Actuaries spend excessive time on data preparation vs. insight generation</li>
+        </ul>
+        <div class="stat-row">
+          <div class="stat-box"><div class="num">1–2×</div><div class="lbl">Study frequency per year</div></div>
+          <div class="stat-box" style="background:rgba(245,166,35,0.06);border-color:rgba(245,166,35,0.2);"><div class="num" style="color:var(--accent3);">High</div><div class="lbl">Manual data burden</div></div>
+          <div class="stat-box" style="background:rgba(255,107,107,0.06);border-color:rgba(255,107,107,0.2);"><div class="num" style="color:#ff6b6b;">Lag</div><div class="lbl">Assumption responsiveness</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 2 ─── -->
+  <div class="slide" id="slide-2">
+    <div class="slide-header">
+      <div>
+        <span class="slide-num">02 / 07</span>
+        <div class="slide-title">The Case <span>for Change</span></div>
+      </div>
+      <div class="logo-mark">STRATEGIC RATIONALE<br>BUSINESS CASE</div>
+    </div>
+    <div class="divider"></div>
+    <div class="content-grid three-col" style="flex:1;">
+      <div class="card">
+        <div class="card-label">External Pressures</div>
+        <ul class="items">
+          <li>IFRS 17 requires forward-looking, explainable assumptions</li>
+          <li>OSFI E-23 guidance raises model governance and transparency expectations</li>
+          <li>Competitive pressure for more accurate pricing &amp; capital efficiency</li>
+        </ul>
+        <div class="tags" style="margin-top:16px;">
+          <span class="tag blue">IFRS 17</span>
+          <span class="tag blue">OSFI E-23</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label blue">Business Rationale</div>
+        <ul class="items">
+          <li>Mortality &amp; lapse assumptions now directly impact:</li>
+          <li class="sub">Contractual Service Margin (CSM)</li>
+          <li class="sub">Profit emergence patterns</li>
+          <li class="sub">Capital volatility</li>
+          <li>AI enables material uplift in predictive accuracy</li>
+          <li>Significant reduction in actuarial opportunity cost</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-label amber">Strategic Shift</div>
+        <div class="arrow-row" style="flex-direction:column;gap:10px;margin-bottom:0;">
+          <div class="arrow-box" style="background:rgba(255,107,107,0.06);border-color:rgba(255,107,107,0.2);">
+            <strong style="color:#ff6b6b;">FROM</strong>
+            Retrospective, static experience studies
+          </div>
+          <div style="text-align:center;color:var(--accent);font-size:22px;">↓</div>
+          <div class="arrow-box" style="background:rgba(0,212,170,0.06);border-color:rgba(0,212,170,0.2);">
+            <strong style="color:var(--accent);">TO</strong>
+            Continuous, data-rich, explainable analytics embedded in the TOM
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 3 ─── -->
+  <div class="slide" id="slide-3">
+    <div class="slide-header">
+      <div>
+        <span class="slide-num">03 / 07</span>
+        <div class="slide-title">Alternative Risk Factors <span>Beyond Demographics</span></div>
+      </div>
+      <div class="logo-mark">RISK DRIVERS<br>DATA ENRICHMENT</div>
+    </div>
+    <div class="divider"></div>
+    <div style="flex:1;display:flex;gap:20px;position:relative;z-index:1;">
+
+      <!-- Risk Driver Table -->
+      <div class="card" style="flex:2;padding:18px 20px;overflow:auto;">
+        <div class="card-label" style="margin-bottom:14px;">Risk Driver Comparison</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11.5px;">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:7px 10px;background:rgba(0,212,170,0.08);border:1px solid rgba(255,255,255,0.07);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--accent);font-weight:500;text-transform:uppercase;white-space:nowrap;">Risk Driver Category</th>
+              <th style="text-align:left;padding:7px 10px;background:rgba(0,212,170,0.08);border:1px solid rgba(255,255,255,0.07);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--accent);font-weight:500;text-transform:uppercase;">Traditional Variables</th>
+              <th style="text-align:left;padding:7px 10px;background:rgba(0,212,170,0.08);border:1px solid rgba(255,255,255,0.07);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--accent2);font-weight:500;text-transform:uppercase;">Next-Generation Alternative Variables</th>
+              <th style="text-align:left;padding:7px 10px;background:rgba(0,212,170,0.08);border:1px solid rgba(255,255,255,0.07);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--accent3);font-weight:500;text-transform:uppercase;white-space:nowrap;">Frequency of Data Capture</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding:8px 10px;border:1px solid rgba(255,255,255,0.06);color:var(--text);font-weight:600;font-size:11px;background:rgba(255,255,255,0.02);white-space:nowrap;">Demographic &amp;<br>Structural</td>
+              <td style="padding:8px 10px;border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-size:11px;">Attained Age, Gender,<br>Geographic Location</td>
+              <td style="padding:8px 10px;border:1px solid rgba(255,255,255,0.06);color:#a8d8ff;font-size:11px;">Mosaic consumer classifications,<br>Household density</td>
+              <td style="padding:8px 10px;border:1px solid rgba(255,255,255,0.06);font-size:10px;"><span style="background:rgba(245,166,35,0.12);color:var(--accent3);border:1px solid rgba(245,166,35,0.25);border-radius:4px;padding:2px 7px;font-family:'DM Mono',monospace;font-size:9px;white-space:nowrap;">Static</span><br><span style="color:var(--muted);font-size:9px;">At policy issue</span></td>
+            </tr>
+            <tr>
+              <td style="padding:8px 10px;border:1px solid rgba(255,255,255,0.06);color:var(--text);font-weight:600;font-size:11px;background:rgba(255,255,255,0.02);white-space:nowrap;">Health &amp;<br>Physiological</td>
+              <td style="padding:8px 10px;border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-size:11px;">Smoker status, Body Mass Index,<br>Blood pressure</td>
+              <td style="padding:8px 10px;border:1px solid rgba(255,255,255,0.06);color:#a8d8ff;font-size:11px;">Resting Heart Rate, Sleep Regularity,<br>Grip Strength</td>
+              <td style="padding:8px 10px;border:1px solid rgba(255,255,255,0.06);font-size:10px;"><span style="background:rgba(0,212,170,0.12);color:var(--accent);border:1px solid rgba(0,212,170,0.25);border-radius:4px;padding:2px 7px;font-family:'DM Mono',monospace;font-size:9px;white-space:nowrap;">Continuous</span><br><span style="color:var(--muted);font-size:9px;">Daily / Weekly</span></td>
+            </tr>
+            <tr>
+              <td style="padding:8px 10px;border:1px solid rgba(255,255,255,0.06);color:var(--text);font-weight:600;font-size:11px;background:rgba(255,255,255,0.02);white-space:nowrap;">Financial &amp;<br>Behavioral</td>
+              <td style="padding:8px 10px;border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-size:11px;">Face Amount (SA Size),<br>Premium Payment Mode</td>
+              <td style="padding:8px 10px;border:1px solid rgba(255,255,255,0.06);color:#a8d8ff;font-size:11px;">Credit-based insurance score,<br>Retail transaction history</td>
+              <td style="padding:8px 10px;border:1px solid rgba(255,255,255,0.06);font-size:10px;"><span style="background:rgba(79,140,255,0.12);color:var(--accent2);border:1px solid rgba(79,140,255,0.25);border-radius:4px;padding:2px 7px;font-family:'DM Mono',monospace;font-size:9px;white-space:nowrap;">High-Frequency</span><br><span style="color:var(--muted);font-size:9px;">Monthly / Quarterly</span></td>
+            </tr>
+            <tr>
+              <td style="padding:8px 10px;border:1px solid rgba(255,255,255,0.06);color:var(--text);font-weight:600;font-size:11px;background:rgba(255,255,255,0.02);white-space:nowrap;">Operational &amp;<br>Medical</td>
+              <td style="padding:8px 10px;border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-size:11px;">Underwriting class<br>(Preferred / Standard), APS</td>
+              <td style="padding:8px 10px;border:1px solid rgba(255,255,255,0.06);color:#a8d8ff;font-size:11px;">Algorithmic Electronic Health<br>Record (EHR) analytics</td>
+              <td style="padding:8px 10px;border:1px solid rgba(255,255,255,0.06);font-size:10px;"><span style="background:rgba(79,140,255,0.12);color:var(--accent2);border:1px solid rgba(79,140,255,0.25);border-radius:4px;padding:2px 7px;font-family:'DM Mono',monospace;font-size:9px;white-space:nowrap;">Dynamic</span><br><span style="color:var(--muted);font-size:9px;">Event-driven</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Why This Matters card -->
+      <div class="card" style="flex:1;">
+        <div class="card-label amber">Why This Matters</div>
+        <ul class="items">
+          <li>Captures risk heterogeneity missed by traditional groupings</li>
+          <li>Enables materially finer mortality segmentation without invasive underwriting</li>
+          <li>Shifts from proxy-based to behaviorally grounded risk classification</li>
+        </ul>
+        <div class="tags" style="margin-top:14px;">
+          <span class="tag green">Continuous</span>
+          <span class="tag green">Longitudinal</span>
+          <span class="tag blue">High-Frequency</span>
+          <span class="tag blue">Event-Driven</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 4 ─── -->
+  <div class="slide" id="slide-4">
+    <div class="slide-header">
+      <div>
+        <span class="slide-num">04 / 07</span>
+        <div class="slide-title">Deep Dive: <span>Credit Data &amp; Mortality</span></div>
+      </div>
+      <div class="logo-mark">BEHAVIORAL PROXIES<br>CREDIT ANALYTICS</div>
+    </div>
+    <div class="divider"></div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:14px;position:relative;z-index:1;">
+      <!-- Top row: 3 cards -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;flex:1;">
+        <div class="card">
+          <div class="card-label">Observed Relationship</div>
+          <ul class="items">
+            <li>Strong empirical correlation between credit stability and mortality outcomes</li>
+            <li>Credit data acts as a proxy for lifestyle, stress, and access to care</li>
+          </ul>
+          <div style="margin-top:14px;">
+            <div class="card-label blue" style="margin-bottom:10px;">Use Cases</div>
+            <ul class="items">
+              <li>Enhancing mortality assumption setting</li>
+              <li>Improving underwriting triage (simplified vs. full UW)</li>
+              <li>Supporting experience study segmentation</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label amber">Key Pitfalls</div>
+          <ul class="items">
+            <li>Correlation ≠ causation — credit is a proxy, not a biological driver</li>
+            <li>Regulatory sensitivity around fairness and indirect discrimination</li>
+            <li>Data drift as macroeconomic conditions change</li>
+          </ul>
+          <div class="tags" style="margin-top:14px;">
+            <span class="tag red">Proxy Risk</span>
+            <span class="tag red">Data Drift</span>
+            <span class="tag amber">Reg. Sensitivity</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label blue">Actuarial Guardrails</div>
+          <ul class="items">
+            <li>Use credit variables as supporting factors, not sole drivers</li>
+            <li>Continuous monitoring and periodic re-calibration</li>
+            <li>Clear documentation of intent and limitations</li>
+            <li>Adverse impact ratio testing pre-production</li>
+            <li>Fallback mechanisms where credit data unavailable</li>
+          </ul>
+        </div>
+      </div>
+      <!-- Bottom row: research findings + key considerations -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;flex-shrink:0;">
+        <div class="card" style="padding:14px 20px;">
+          <div class="card-label" style="color:#c084fc;margin-bottom:12px;">
+            <span style="display:inline-block;width:20px;height:2px;background:#c084fc;flex-shrink:0;margin-right:8px;"></span>
+            Key Research Findings
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+            <div>
+              <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);font-weight:600;margin-bottom:5px;">Harvard / ACS Study (2025)</div>
+              <div style="font-size:11px;color:var(--muted);line-height:1.5;">Cancer patients with a 2-tier credit score drop saw <span style="color:var(--text);">29% higher mortality</span>. A 6-month 2-tier drop → <span style="color:var(--text);">63% higher mortality</span>.</div>
+            </div>
+            <div>
+              <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);font-weight:600;margin-bottom:5px;">RGA Validation (2023)</div>
+              <div style="font-size:11px;color:var(--muted);line-height:1.5;">Milliman RxDxCr3.0 (Rx + medical + credit) is the <span style="color:var(--text);">most powerful combined score</span>. Credit captures orthogonal risk dimension.</div>
+            </div>
+            <div>
+              <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);font-weight:600;margin-bottom:5px;">SOA / Academic Research</div>
+              <div style="font-size:11px;color:var(--muted);line-height:1.5;">Credit scores contain <span style="color:var(--text);">significant info not in traditional rating variables</span>; explained by risk-taking behavior theory.</div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="padding:14px 20px;">
+          <div class="card-label amber" style="margin-bottom:12px;">Key Considerations</div>
+          <ul class="items">
+            <li><span style="color:var(--accent3);font-weight:600;">Proxy Discrimination</span> — Credit, geography, or occupation may correlate with protected classes (race, income). Disparate impact testing is essential.</li>
+            <li><span style="color:var(--accent3);font-weight:600;">Genetic Information</span> — Moratorium/restrictions on genetic testing results in many jurisdictions. PRS is an emerging gray area.</li>
+            <li><span style="color:var(--accent3);font-weight:600;">Consent &amp; Transparency</span> — Regulators are developing guidance on AI/ML use in underwriting decisions; insurers should document intent, testing methodology and limitations.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 5 ─── -->
+  <div class="slide" id="slide-5">
+    <div class="slide-header">
+      <div>
+        <span class="slide-num">05 / 07</span>
+        <div class="slide-title">Machine Learning <span>for Experience Studies</span></div>
+      </div>
+      <div class="logo-mark">AI / ML METHODS<br>EXPLAINABILITY</div>
+    </div>
+    <div class="divider"></div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:14px;position:relative;z-index:1;">
+      <!-- Top row: Traditional vs Next-Gen -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="card" style="background:rgba(255,107,107,0.04);border-color:rgba(255,107,107,0.15);">
+          <div class="card-label" style="color:#ff6b6b;">
+            <span style="display:inline-block;width:20px;height:2px;background:#ff6b6b;flex-shrink:0;margin-right:8px;"></span>
+            Traditional Approach
+          </div>
+          <ul class="items">
+            <li>Actual-to-Expected (A/E) ratios against reference tables</li>
+            <li>Segment by single variable at a time</li>
+            <li>Aggregate heterogeneous segments for credibility</li>
+            <li>Linear assumptions between risk factors</li>
+          </ul>
+          <div style="margin-top:10px;background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.2);border-radius:6px;padding:6px 10px;font-size:11px;color:#ff6b6b;">
+            Limited to 5–8 risk dimensions
+          </div>
+        </div>
+        <div class="card" style="background:rgba(0,212,170,0.04);border-color:rgba(0,212,170,0.2);">
+          <div class="card-label">
+            Next-Gen Approach
+          </div>
+          <ul class="items">
+            <li>Gradient-boosted trees (XGBoost, LightGBM)</li>
+            <li>Survival analysis (Cox PH, Kaplan-Meier, DeepSurv)</li>
+            <li>Bayesian inference for uncertainty &amp; sparse data</li>
+            <li>Capture non-linear interactions across 100+ features</li>
+          </ul>
+          <div style="margin-top:10px;background:rgba(0,212,170,0.08);border:1px solid rgba(0,212,170,0.2);border-radius:6px;padding:6px 10px;font-size:11px;color:var(--accent);">
+            Discover hidden risk factors &amp; interaction effects
+          </div>
+        </div>
+      </div>
+      <!-- Bottom row: original 3 cards -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;flex:1;">
+        <div class="card">
+          <div class="card-label">Where ML Adds Value</div>
+          <ul class="items">
+            <li>Detects non-linear interactions across hundreds of variables</li>
+            <li>Improves predictive accuracy vs. traditional GLMs</li>
+            <li>Enables faster, more frequent experience refreshes</li>
+          </ul>
+          <div style="margin-top:14px;">
+            <div class="card-label" style="margin-bottom:10px;">Typical Applications</div>
+            <ul class="items">
+              <li>Mortality curve fitting</li>
+              <li>Credibility weighting across segments</li>
+              <li>Early detection of experience deterioration</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label amber">Key Pitfalls</div>
+          <ul class="items">
+            <li>"Black box" models unacceptable for audit and regulators</li>
+            <li>Overfitting to historical noise</li>
+            <li>Loss of actuarial intuition if models blindly trusted</li>
+          </ul>
+
+        </div>
+        <div class="card">
+          <div class="card-label blue">Role of SHAP &amp; Explainable AI</div>
+          <ul class="items">
+            <li>SHAP values decompose predictions into factor-level contributions</li>
+            <li>Enables regulatory defensibility</li>
+            <li>Clear communication to stakeholders</li>
+            <li>Validation under ASOP 56 and OSFI E-23</li>
+            <li>Generates compliant adverse action notices</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 6 ─── -->
+  <div class="slide" id="slide-6">
+    <div class="slide-header">
+      <div>
+        <span class="slide-num">06 / 07</span>
+        <div class="slide-title">Lapse &amp; <span>Termination Behaviour</span></div>
+      </div>
+      <div class="logo-mark">CSM IMPACT<br>BEHAVIORAL MODELING</div>
+    </div>
+    <div class="divider"></div>
+    <div class="content-grid three-col" style="flex:1;">
+      <div class="card">
+        <div class="card-label">Lapse Prediction</div>
+        <div style="font-size:22px;margin-bottom:8px;">📉</div>
+        <ul class="items">
+          <li>Premium affordability (credit data)</li>
+          <li>Life events (digital footprints)</li>
+          <li>Billing mode and premium shock</li>
+          <li>Non-linear interactions across factors</li>
+        </ul>
+        <div class="tags" style="margin-top:12px;">
+          <span class="tag amber">Shock Lapses</span>
+          <span class="tag amber">Post-Level Term</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label amber">Anti-Selection</div>
+        <div style="font-size:22px;margin-bottom:8px;">🔄</div>
+        <ul class="items">
+          <li>Post-level term mortality deterioration driven by selective lapsation</li>
+          <li>SOA/SCOR 2021 study confirmed premium increase is key driver</li>
+          <li>Healthy lives disproportionately lapse at premium jump</li>
+        </ul>
+        <div class="tags" style="margin-top:12px;">
+          <span class="tag red">Anti-Selection Risk</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label blue">Dynamic Underwriting</div>
+        <div style="font-size:22px;margin-bottom:8px;">⚡</div>
+        <ul class="items">
+          <li>Continuous risk reassessment using wearables and real-time data</li>
+          <li>Pricing responds to actual behaviour, not point-in-time assessment</li>
+          <li>Joint modeling of mortality and lapse for coherent assumptions</li>
+        </ul>
+        <div class="tags" style="margin-top:12px;">
+          <span class="tag green">Continuous</span>
+          <span class="tag blue">Real-Time</span>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:14px;background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.15);border-left:3px solid var(--accent);border-radius:8px;padding:10px 16px;font-size:12px;color:var(--muted);line-height:1.6;position:relative;z-index:1;flex-shrink:0;">
+      <strong style="color:var(--accent);">SOA PLT Study (2021):</strong> Statistical modeling identified premium increase, attained age, and billing type as top predictors of both lapse and mortality deterioration — validating multivariate approaches over single-factor A/E analysis.
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 7 ─── -->
+  <div class="slide" id="slide-7">
+    <div class="slide-header">
+      <div>
+        <span class="slide-num">07 / 07</span>
+        <div class="slide-title">Roadmap: <span>How to Get Started</span></div>
+      </div>
+      <div class="logo-mark">IMPLEMENTATION<br>NEXT STEPS</div>
+    </div>
+    <div class="divider"></div>
+    <div style="position:relative;z-index:1;flex:1;display:flex;flex-direction:column;gap:20px;">
+      <div class="phases" style="flex:1;">
+        <div class="phase p1" data-num="1">
+          <div class="phase-title">Phase 1</div>
+          <div class="phase-name">Foundations</div>
+          <ul class="items">
+            <li>Identify priority assumptions (mortality, lapse)</li>
+            <li>Inventory available internal and third-party data</li>
+            <li>Define governance and validation standards upfront</li>
+          </ul>
+          <div class="tags" style="margin-top:14px;">
+            <span class="tag green">Data Audit</span>
+            <span class="tag green">Governance</span>
+          </div>
+        </div>
+        <div class="phase p2" data-num="2">
+          <div class="phase-title">Phase 2</div>
+          <div class="phase-name">Proof of Concept</div>
+          <ul class="items">
+            <li>Target a narrow use case (e.g., term mortality)</li>
+            <li>Build parallel traditional vs. ML models</li>
+            <li>Use SHAP to validate explainability</li>
+          </ul>
+          <div class="tags" style="margin-top:14px;">
+            <span class="tag blue">A/B Model</span>
+            <span class="tag blue">SHAP Validation</span>
+          </div>
+        </div>
+        <div class="phase p3" data-num="3">
+          <div class="phase-title">Phase 3</div>
+          <div class="phase-name">Scale &amp; Embed</div>
+          <ul class="items">
+            <li>Integrate outputs into pricing, valuation, and FP&amp;A</li>
+            <li>Automate refresh cycles</li>
+            <li>Establish independent model validation</li>
+          </ul>
+          <div class="tags" style="margin-top:14px;">
+            <span class="tag amber">Automation</span>
+            <span class="tag amber">Model Validation</span>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="padding:18px 24px;">
+        <div class="card-label blue" style="margin-bottom:12px;">Next Steps</div>
+        <div style="display:flex;gap:28px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:rgba(79,140,255,0.15);border:1px solid rgba(79,140,255,0.3);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--accent2);flex-shrink:0;">①</div>
+            <span style="font-size:13px;">Executive sponsorship secured</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:rgba(79,140,255,0.15);border:1px solid rgba(79,140,255,0.3);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--accent2);flex-shrink:0;">②</div>
+            <span style="font-size:13px;">Cross-functional team — actuarial, data science &amp; risk</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:rgba(79,140,255,0.15);border:1px solid rgba(79,140,255,0.3);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--accent2);flex-shrink:0;">③</div>
+            <span style="font-size:13px;">Clear success metrics tied to business outcomes</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<!-- Navigation -->
+<nav class="nav">
+  <button class="nav-btn" id="prevBtn" onclick="navigate(-1)">&#8592;</button>
+  <div class="nav-dots" id="dots"></div>
+  <span class="nav-counter" id="counter">0 / 7</span>
+  <button class="nav-btn" id="nextBtn" onclick="navigate(1)">&#8594;</button>
+</nav>
+
+<script>
+  const totalSlides = 8; // 0 = title, 1-7 = content
+  let current = 0;
+
+  const dots = document.getElementById('dots');
+  const counter = document.getElementById('counter');
+  const progress = document.getElementById('progress');
+
+  // Build dots
+  for (let i = 0; i < totalSlides; i++) {
+    const d = document.createElement('button');
+    d.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dots.appendChild(d);
+  }
+
+  function goTo(n) {
+    document.getElementById('slide-' + current).classList.remove('active');
+    current = n;
+    document.getElementById('slide-' + current).classList.add('active');
+    dots.querySelectorAll('.nav-dot').forEach((d, i) => d.classList.toggle('active', i === current));
+    const label = current === 0 ? 'Intro' : current + ' / 7';
+    counter.textContent = label;
+    progress.style.width = ((current / (totalSlides - 1)) * 100) + '%';
+  }
+
+  function navigate(dir) {
+    const next = Math.max(0, Math.min(totalSlides - 1, current + dir));
+    goTo(next);
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') navigate(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   navigate(-1);
+  });
+
+  // Init
+  goTo(0);
+</script>
+</body>
+</html>
